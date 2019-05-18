@@ -19,9 +19,10 @@ public class EchoClientProtoBufHandler
         ctx.writeAndFlush(Unpooled.copiedBuffer("Netty rocks!",
                 CharsetUtil.UTF_8));
         System.out.println("1");
-        MessageProto.Message message = MessageProto.Message.newBuilder().setId("111").setContent("zbw_first_protobuf").build();
+        MessageProto.Message message = MessageProto.Message.newBuilder().setId(111).setContent(234).build();
         ctx.channel().writeAndFlush(message);
         System.out.println("2");
+        System.out.println(message);
     }
 
     @Override

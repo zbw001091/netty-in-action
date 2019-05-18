@@ -11,6 +11,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.protobuf.ProtobufDecoder;
 import io.netty.handler.codec.protobuf.ProtobufEncoder;
+import io.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
+import io.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
 
 /**
  * Listing 2.4 Main class for the client
@@ -38,7 +40,10 @@ public class EchoClientProtoBuf {
                     @Override
                     public void initChannel(SocketChannel ch)
                         throws Exception {
+                    	ch.pipeline().addLast(new ProtobufVarint32FrameDecoder());
                         ch.pipeline().addLast(new ProtobufDecoder(MessageProto.Message.getDefaultInstance()));
+//                        ch.pipeline().addLast(new EchoClientProtoBufOutboundHandler());
+                        ch.pipeline().addLast(new ProtobufVarint32LengthFieldPrepender());
                         ch.pipeline().addLast(new ProtobufEncoder());
                         ch.pipeline().addLast(new EchoClientProtoBufHandler());
                     }

@@ -1,4 +1,4 @@
-package nia.chapter2.echoserver.protobuf;
+package nia.chapter2.echoserver.redis;
 
 import java.net.InetSocketAddress;
 
@@ -9,37 +9,34 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.protobuf.ProtobufDecoder;
-import io.netty.handler.codec.protobuf.ProtobufEncoder;
-import io.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
-import io.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
+import io.netty.handler.codec.redis.RedisDecoder;
 
 /**
  * Listing 2.2 EchoServer class
  *
  * @author <a href="mailto:norman.maurer@gmail.com">Norman Maurer</a>
  */
-public class EchoServerProtoBuf {
+public class RedisServer {
     private final int port;
 
-    public EchoServerProtoBuf(int port) {
+    public RedisServer(int port) {
         this.port = port;
     }
 
     public static void main(String[] args)
         throws Exception {
         if (args.length != 1) {
-            System.err.println("Usage: " + EchoServerProtoBuf.class.getSimpleName() +
+            System.err.println("Usage: " + RedisServer.class.getSimpleName() +
                 " <port>"
             );
             return;
         }
         int port = Integer.parseInt(args[0]);
-        new EchoServerProtoBuf(port).start();
+        new RedisServer(port).start();
     }
 
     public void start() throws Exception {
-        final EchoServerProtoBufHandler serverHandler = new EchoServerProtoBufHandler();
+        final RedisServerRESPHandler serverHandler = new RedisServerRESPHandler();
         EventLoopGroup group = new NioEventLoopGroup();
         try {
             ServerBootstrap b = new ServerBootstrap();
@@ -49,16 +46,13 @@ public class EchoServerProtoBuf {
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     public void initChannel(SocketChannel ch) throws Exception {
-                    	ch.pipeline().addLast(new ProtobufVarint32FrameDecoder());
-                        ch.pipeline().addLast(new ProtobufDecoder(MessageProto.Message.getDefaultInstance()));
-                        ch.pipeline().addLast(new ProtobufVarint32LengthFieldPrepender());
-                        ch.pipeline().addLast(new ProtobufEncoder());
+                    	ch.pipeline().addLast(new RedisDecoder());
                         ch.pipeline().addLast(serverHandler);
                     }
                 });
 
             ChannelFuture f = b.bind().sync();
-            System.out.println(EchoServerProtoBuf.class.getName() +
+            System.out.println(RedisServer.class.getName() +
                 " started and listening for connections on " + f.channel().localAddress());
             f.channel().closeFuture().sync();
         } finally {
