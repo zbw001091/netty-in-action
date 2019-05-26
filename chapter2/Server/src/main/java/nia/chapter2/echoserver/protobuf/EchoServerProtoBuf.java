@@ -4,6 +4,7 @@ import java.net.InetSocketAddress;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -56,11 +57,11 @@ public class EchoServerProtoBuf {
                         ch.pipeline().addLast(serverHandler);
                     }
                 });
-
-            ChannelFuture f = b.bind().sync();
+            
+            ChannelFuture f = b.bind().sync(); //b.bind()返回一个ChannelFuture异步任务，再调用该异步任务的sync()方法
             System.out.println(EchoServerProtoBuf.class.getName() +
                 " started and listening for connections on " + f.channel().localAddress());
-            f.channel().closeFuture().sync();
+            f.channel().closeFuture().sync(); //f.channel().closeFuture()返回一个ChannelFuture异步任务，再调用该异步任务的sync()方法
         } finally {
             group.shutdownGracefully().sync();
         }
